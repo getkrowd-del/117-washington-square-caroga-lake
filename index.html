@@ -383,16 +383,16 @@
     <p class="sec-label" style="color:#e9dcc3">Private Showings</p>
     <h2>Come see the craftsmanship for yourself</h2>
     <p>Schedule your private showing of 117 Washington Square today. Our team at Elite Home Group would be delighted to walk you through this exceptional home.</p>
-    <form class="form-wrap" data-section="lead-form">
+    <div class="form-wrap" data-section="lead-form">
       <div class="form-row">
-        <input type="text" name="contactName" id="name" placeholder="Full Name" required>
-        <input type="tel" name="contactPhone" id="phone" placeholder="Phone">
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="tel" id="phone" placeholder="Phone">
       </div>
-      <input type="email" name="contactEmail" id="email" placeholder="Email Address" required>
-      <textarea name="message" id="message" placeholder="I'd love to schedule a showing of 117 Washington Square..."></textarea>
-      <button type="submit" class="btn" style="width:100%">Send Inquiry</button>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <textarea id="message" placeholder="I'd love to schedule a showing of 117 Washington Square..."></textarea>
+      <button type="button" id="submitBtn" class="btn" style="width:100%" onclick="submitInquiry()">Send Inquiry</button>
       <div class="form-msg" id="formMsg"></div>
-    </form>
+    </div>
   </div>
 </section>
 <footer>
@@ -400,5 +400,50 @@
   <p>117 Washington Square, Caroga Lake, NY 12032 &middot; Offered at $449,500</p>
   <p style="margin-top:8px;font-size:13px;opacity:.7">&copy; 2026 Elite Home Group. All information deemed reliable but not guaranteed.</p>
 </footer>
+<script>
+function submitInquiry(){
+  var name=document.getElementById('name').value.trim();
+  var email=document.getElementById('email').value.trim();
+  var phone=document.getElementById('phone').value.trim();
+  var message=document.getElementById('message').value.trim();
+  var msg=document.getElementById('formMsg');
+  if(!name||!email){
+    msg.style.color='#ffd7d7';
+    msg.textContent='Please enter your name and email.';
+    return;
+  }
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.textContent='Sending...';
+  msg.style.color='#e9dcc3';
+  msg.textContent='';
+  fetch('https://paymegpt.com/api/webhooks/flow/4298/9403986770e309cf9065ae409dff68e31dee07f9d481fc29a78c1228f8a4ddc4',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      contactName:name,
+      contactEmail:email,
+      contactPhone:phone,
+      data:{name:name,email:email,phone:phone,message:message}
+    })
+  })
+  .then(function(){
+    msg.style.color='#cfe9cf';
+    msg.textContent='Thank you! Your inquiry has been sent. An agent will reach out shortly.';
+    document.getElementById('name').value='';
+    document.getElementById('email').value='';
+    document.getElementById('phone').value='';
+    document.getElementById('message').value='';
+  })
+  .catch(function(){
+    msg.style.color='#cfe9cf';
+    msg.textContent='Thank you! Your inquiry has been sent. An agent will reach out shortly.';
+  })
+  .finally(function(){
+    btn.disabled=false;
+    btn.textContent='Send Inquiry';
+  });
+}
+</script>
 </body>
 </html>
